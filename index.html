@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f7f1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="하루수학">
+  <meta name="description" content="한국 실제 교육과정 기반, 매일 한 문제 파라메트릭 수학 학습 앱">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <title>하루수학 · 한국 교육과정 일일 수학</title>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="app">
+      <!-- 상단 헤더 -->
+      <header>
+        <div class="brand">
+          <div class="logo">∑</div>
+          <div>
+            <span>하루수학</span>
+            <span class="brand-sub">한국 교육과정 문제은행</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <div class="streak" id="streak">✦ 연속 학습 0일</div>
+          <button type="button" class="dev-toggle-btn" id="dev-toggle-btn" title="웹브라우저 개발 및 테스트 도구 열기">
+            🧪 테스트
+          </button>
+        </div>
+      </header>
+
+      <!-- 웹브라우저 개발/테스트 환경 워크벤치 (날짜 시뮬레이터 + 변수 변형 테스트 + 모바일 프레임) -->
+      <aside class="dev-workbench" id="dev-workbench" aria-label="웹브라우저 개발 테스트 도구">
+        <div class="dev-header">
+          <span class="dev-title">🧪 웹브라우저 개발·테스트 시뮬레이터</span>
+          <span class="dev-badge">Browser Test Env</span>
+        </div>
+        <div class="dev-grid">
+          <div class="dev-row">
+            <span class="dev-row-label">📅 날짜별 출제·연속학습 테스트</span>
+            <div class="dev-controls">
+              <button type="button" class="dev-btn" id="dev-prev-day">◀ 어제(-1일)</button>
+              <button type="button" class="dev-btn" id="dev-today-btn">오늘</button>
+              <button type="button" class="dev-btn" id="dev-next-day">내일(+1일) ▶</button>
+              <input type="date" class="dev-date-input" id="dev-date-picker" aria-label="테스트 날짜 선택">
+            </div>
+          </div>
+          <div class="dev-row">
+            <span class="dev-row-label">🎲 문제은행 변수 변형 & 모바일 뷰</span>
+            <div class="dev-controls">
+              <button type="button" class="dev-btn accent" id="dev-mutate-seed">🎲 숫자/변수 즉시 변형 출제</button>
+              <button type="button" class="dev-btn" id="dev-frame-toggle">📱 모바일 기기 프레임 토글</button>
+            </div>
+          </div>
+          <div class="dev-inspector" id="dev-inspector">
+            문제은행 엔진 초기화 중…
+          </div>
+        </div>
+      </aside>
+
+      <!-- =====================================================================
+           [탭 1] 오늘의 수학 (메인 학습 화면)
+           ===================================================================== -->
+      <main id="view-home" class="tab-view active">
+        <div class="hero-top">
+          <div class="eyebrow" id="date-label">TODAY'S MATH</div>
+          <span class="sim-indicator" id="sim-indicator"></span>
+        </div>
+        <h1>하루 한 문제,<br>생각은 깊게.</h1>
+        <p class="sub">한국 교육과정 핵심 성취기준을 매일 새로운 숫자와 조건으로 만나 보세요.</p>
+
+        <!-- 수준 빠른 전환 탭 -->
+        <div class="level-switcher" role="tablist" aria-label="학습 수준 선택">
+          <button type="button" class="level-tab" data-level="basic">기초(초등)</button>
+          <button type="button" class="level-tab active" data-level="middle">중등 수학</button>
+          <button type="button" class="level-tab" data-level="high">고등 수학</button>
+          <button type="button" class="level-tab" data-level="life">생활 수학</button>
+        </div>
+
+        <!-- 주간 개념 및 요일별 스탬프 카드 -->
+        <section class="week-card">
+          <div class="week-top">
+            <span class="eyebrow" style="color:#c8cdc3">CURRICULUM FOCUS</span>
+            <span class="pill" id="level-pill">중등 수학</span>
+          </div>
+          <h2 id="concept-title">방정식·함수·도형과 대수의 핵심</h2>
+          <p id="concept-desc"></p>
+
+          <!-- 월~일 요일별 완료 스탬프 및 빠른 이동 -->
+          <div class="week-days-grid" id="week-days-grid"></div>
+
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span>이번 주 학습 달성도 (요일 클릭 시 해당 문제 이동)</span>
+              <span id="progress-text">0 / 7일</span>
+            </div>
+            <div class="progress"><span id="progress-bar"></span></div>
+          </div>
+        </section>
+
+        <!-- 오늘의 문제 섹션 -->
+        <div class="section-title">
+          <h3>오늘의 문제</h3>
+          <span id="day-label">DAY 1 / 7</span>
+        </div>
+
+        <section class="question-card" id="question-card">
+          <div class="curriculum-meta-bar">
+            <span class="std-badge" id="std-badge">[9수02-04]</span>
+            <span class="unit-badge" id="unit-badge">중1 · 일차방정식</span>
+            <span class="diff-badge" id="diff-badge">★★☆ 표준</span>
+          </div>
+          <div class="source-ref">
+            <span id="source-ref-text">📚 출처: 교과서 대표 유형</span>
+            <span class="variant-tag" id="variant-tag">오늘의 공식 문제</span>
+          </div>
+
+          <div class="question" id="question-text">문제를 불러오는 중…</div>
+
+          <div class="hint-row">
+            <button type="button" class="hint-btn" id="hint-btn">💡 개념 힌트 보기</button>
+            <div class="hint-box" id="hint-box"></div>
+          </div>
+
+          <div class="options" id="options"></div>
+
+          <div class="action-row two-col">
+            <button type="button" class="primary" id="check-btn" disabled>정답 확인</button>
+            <button type="button" class="secondary-btn" id="mutate-btn" title="같은 성취기준 유형에서 숫자와 조건을 새로 생성해 풀어봅니다">
+              🔄 숫자 바꿔 변형 문제 풀기
+            </button>
+          </div>
+          <div style="margin-top:8px;text-align:right">
+            <button type="button" id="today-origin-btn" style="border:0;background:transparent;color:var(--muted);font-size:11.5px;text-decoration:underline;padding:2px 4px">
+              오늘의 공식 문제로 돌아가기
+            </button>
+          </div>
+
+          <!-- 정답 확인 후 단계별 풀이 표시 영역 -->
+          <div class="feedback" id="feedback"></div>
+        </section>
+
+        <!-- 오늘의 개념 한입 -->
+        <div class="section-title">
+          <h3>오늘의 개념 한입</h3>
+          <span>한국 교육과정 핵심 요약</span>
+        </div>
+        <section class="concept">
+          <h4 id="mini-title"></h4>
+          <p id="mini-desc"></p>
+          <span class="formula" id="formula"></span>
+          <p id="example"></p>
+        </section>
+      </main>
+
+      <!-- =====================================================================
+           [탭 2] 한국 교육과정 & 파라메트릭 문제은행 탐색기
+           ===================================================================== -->
+      <section id="view-curriculum" class="tab-view">
+        <div class="eyebrow">KOREAN MATH CURRICULUM BANK</div>
+        <h1>교육과정 문제은행</h1>
+        <p class="sub">
+          2015·2022 개정 한국 수학과 교육과정 성취기준과 교과서·학력평가 대표 유형을 총망라한 56개 파라메트릭 문제 템플릿입니다. 원하는 유형을 검색하거나 골라 무제한 변형 문제로 연습해 보세요.
+        </p>
+
+        <!-- 단원 및 성취기준 검색 입력창 -->
+        <div class="bank-search-wrap">
+          <input type="search" class="bank-search-input" id="bank-search-input" placeholder="🔍 단원명, 성취기준, 개념 키워드 검색 (예: 분수, 피타고라스, 미분, 할인, BMI)">
+        </div>
+
+        <div class="bank-filter-bar">
+          <button type="button" class="filter-chip active" data-bank-filter="all">전체 (56유형)</button>
+          <button type="button" class="filter-chip" data-bank-filter="basic">기초·초등 (14)</button>
+          <button type="button" class="filter-chip" data-bank-filter="middle">중등 수학 (14)</button>
+          <button type="button" class="filter-chip" data-bank-filter="high">고등 수학 (14)</button>
+          <button type="button" class="filter-chip" data-bank-filter="life">생활·실용·경제 (14)</button>
+        </div>
+
+        <div id="bank-count-info" style="font-size:12px;color:var(--muted);font-weight:700;margin:6px 0 10px"></div>
+
+        <div class="bank-list" id="bank-list"></div>
+      </section>
+
+      <!-- =====================================================================
+           [탭 3] 학습 기록 & 오답 노트
+           ===================================================================== -->
+      <section id="view-history" class="tab-view">
+        <div class="eyebrow">STUDY LOG & WRONG ANSWER NOTE</div>
+        <h1>학습 기록 · 오답노트</h1>
+        <p class="sub">
+          이 기기의 브라우저에 저장된 나의 학습 기록입니다. 틀렸던 문제는 숫자를 변형한 유사 문제로 즉시 복습할 수 있습니다.
+        </p>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">연속 학습 기록</div>
+            <div class="stat-value" id="stat-streak">0일</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">완료한 일일 학습</div>
+            <div class="stat-value" id="stat-daily">0회</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">변형 문제 추가 연습</div>
+            <div class="stat-value" id="stat-variation">0회</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">누적 정답률</div>
+            <div class="stat-value" id="stat-accuracy">0%</div>
+          </div>
+        </div>
+
+        <div class="bank-filter-bar">
+          <button type="button" class="filter-chip active" data-history-filter="all">전체 풀이 기록</button>
+          <button type="button" class="filter-chip" data-history-filter="wrong">오답 노트만 보기</button>
+        </div>
+
+        <div class="history-list" id="history-list"></div>
+      </section>
+
+      <!-- =====================================================================
+           [탭 4] 설정 & 모바일/PWA 환경
+           ===================================================================== -->
+      <section id="view-settings" class="tab-view">
+        <div class="eyebrow">SETTINGS & MOBILE APP</div>
+        <h1>설정 및 앱 환경</h1>
+        <p class="sub">학습 수준 설정, 모바일 홈 화면 설치(PWA), 웹브라우저 테스트 환경을 관리합니다.</p>
+
+        <div class="settings-card" style="margin-top:16px">
+          <h4>🎯 기본 학습 수준 설정</h4>
+          <label for="level-select">교과 과정 수준 선택</label>
+          <select id="level-select">
+            <option value="basic">기초 수학 (초등 4~6학년 교육과정)</option>
+            <option value="middle">중등 수학 (중학교 1~3학년 교육과정)</option>
+            <option value="high">고등 수학 (공통수학·대수·미적분Ⅰ 학력평가)</option>
+            <option value="life">생활 속 수학 (실용수학·경제수학·수리력)</option>
+          </select>
+          <p class="small-note">
+            수준을 변경해도 기존에 각 수준별로 기록한 주간 달성도와 오답 노트는 안전하게 유지됩니다.
+          </p>
+        </div>
+
+        <div class="settings-card">
+          <h4>📲 모바일 앱 설치 (PWA) 및 개발자 뷰</h4>
+          <div class="toggle-row">
+            <div>
+              <strong style="font-size:13px">오프라인 캐시 상태</strong>
+              <div class="small-note" id="sw-status">확인 중…</div>
+            </div>
+          </div>
+          <div style="display:grid;gap:8px;margin-top:12px">
+            <button type="button" class="primary" id="pwa-install-btn">
+              📲 모바일 홈 화면에 앱 설치 안내 / 실행
+            </button>
+            <button type="button" class="secondary-btn" id="frame-mode-btn">
+              📱 데스크톱 브라우저에서 모바일 프레임 뷰 전환
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <h4>💾 학습 데이터 관리 (기기 브라우저 저장)</h4>
+          <p class="small-note" style="margin-bottom:12px">
+            모든 학습 기록은 서버 전송 없이 현재 기기의 브라우저(LocalStorage)에 저장됩니다. JSON 파일로 백업하거나 초기화할 수 있습니다.
+          </p>
+          <div style="display:grid;gap:8px">
+            <button type="button" class="secondary-btn" id="export-btn">
+              📥 학습 기록 JSON 백업 다운로드
+            </button>
+            <button type="button" class="secondary-btn" id="reset-btn" style="color:#9e2a1b;border-color:#f1c2bc;background:#fff5f3">
+              🗑️ 학습 기록 및 오답노트 전체 초기화
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 하단 모바일 앱 내비게이션 바 -->
+    <nav class="bottom-nav" aria-label="하단 메뉴">
+      <div class="nav-inner">
+        <button type="button" class="nav-item active" id="nav-home">
+          <span class="nav-icon">⌂</span>
+          <span>오늘</span>
+        </button>
+        <button type="button" class="nav-item" id="nav-curriculum">
+          <span class="nav-icon">▤</span>
+          <span>교육과정</span>
+        </button>
+        <button type="button" class="nav-item" id="nav-history">
+          <span class="nav-icon">✎</span>
+          <span>기록·오답</span>
+        </button>
+        <button type="button" class="nav-item" id="nav-settings">
+          <span class="nav-icon">⚙</span>
+          <span>설정</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="problem-bank.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

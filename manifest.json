@@ -1,0 +1,21 @@
+{
+  "name": "하루수학 - 한국 교육과정 일일 수학",
+  "short_name": "하루수학",
+  "description": "한국 실제 수학과 교육과정 성취기준 기반, 매일 새로운 변수로 출제되는 하루 한 문제 수학 앱",
+  "lang": "ko-KR",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6f7f1",
+  "theme_color": "#f6f7f1",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
